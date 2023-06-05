@@ -1,0 +1,23 @@
+### Terraform ###
+env/*
+# Local .terraform directories
+.terraform*
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+terraform.yml*
+terraform.tf*
+config.yml
+### Openstack
+# Ignore any openrc creds file at root
+/*openrc.sh
+
+# Jetbrains IDE files
+.idea
+*.iml
+
+**/.DS_Store

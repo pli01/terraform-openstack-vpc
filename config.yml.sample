@@ -1,35 +1,16 @@
-# terraform-openstack-vpc
-
-This repository contains terraform modules to build a VPC in an openstack cloud
-
-One Yaml configuration file describe the topology: networks, images, security group, instances
-
-## configuration file
-Create your own config.yml file based on config.yml.sample
-
-Sample data structure:
-```yaml
+configuration:
+  openstack_compute_interface_attach_v2: true
 cloud:
-#
-# keypair map to add
-#
+  cloud: ovh
+  tenant_id: plop
   keypair:
     default_keypair: "ssh-rsa ......"
-#
-# router map: external net
-# 2 Routers to External Net
   fip_network:
     FIP_PUB: Ext-Net
     FIP_ADM: Ext-Net
-
-#
-# 1 zone : 2 network with 1 subnet
-# zone: admin
-#  network: admin_fip
-#    subnet: admin_fip_fip_nat connected to on router (static)
-#  network: admin_tools
-#    subnet: admin_tools_tools (with dhcp allocation pool and static routes)
-#
+images: {}
+security_groups: {}
+#network: {}
 network:
   admin:
     networks:
@@ -39,6 +20,12 @@ network:
           dhcp: false
           gateway: 10.1.1.1
           router: FIP_ADM
+        fip_bastion:
+          cidr: 10.1.1.8/29
+          dhcp: false
+          gateway: 10.1.1.9
+          router: FIP_ADM
+
       tools:
         tools:
           cidr: 10.1.2.0/24
@@ -49,9 +36,16 @@ network:
               - 10.1.1.0/16
               - 192.168.0.0/10
 
-#
-# security group
-#
+  pub:
+    networks:
+      fip:
+        fip_nat:
+          cidr: 10.2.0.0/29
+          dhcp: false
+          gateway: 10.2.0.1
+          router: FIP_PUB
+
+#security_groups: {}
 security_groups:
   admin:
     default:
@@ -71,10 +65,8 @@ security_groups:
       - ports: 22
         description: SSH
         sources: 10.2.2.0/24
-#
-# instances map:
-# 1 instance, 1 root disk , 1 data disk, 1 interface
-#
+
+#instances: {}
 instances:
   bastion-01:
     openstack_instance_name: bastion-01
@@ -93,7 +85,3 @@ instances:
         image: Debian 10
       - name: data
         size: 20
-```
-
-Tested on :
-- OVH Public Cloud
