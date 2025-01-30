@@ -1,6 +1,6 @@
 locals {
   # config file
-  config = yamldecode(file("${path.module}/${var.config}"))
+  config = yamldecode(file("${path.root}/${var.config}"))
 
   separator = "_"
 
