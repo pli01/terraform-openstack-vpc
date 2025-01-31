@@ -32,8 +32,6 @@ locals {
             # dhcp start/end :  5 ip from cidr start , end last 5 ip from cidr end :  -6
             dhcp_start : (subnet_value.dhcp != "" && subnet_value.dhcp != false ? cidrhost(subnet_value.cidr, local.dhcp_first_ip) : 0)
             dhcp_end : (subnet_value.dhcp != "" && subnet_value.dhcp != false ? cidrhost(subnet_value.cidr, local.dhcp_last_ip) : 0)
-            #dhcp_start : (subnet_value.dhcp != "" && subnet_value.dhcp != false ? cidrhost(subnet_value.cidr, local.dhcp_first_ip) : 0)
-            #dhcp_end : (subnet_value.dhcp != "" && subnet_value.dhcp != false ? cidrhost(subnet_value.cidr, local.dhcp_last_ip) : 0)
             dns_nameservers : (subnet_value.dhcp != "" && subnet_value.dhcp != false ? flatten([subnet_value.dhcp.dns]) : [])
         })
       }

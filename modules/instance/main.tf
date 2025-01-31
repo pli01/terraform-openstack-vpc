@@ -84,6 +84,7 @@ resource "openstack_compute_instance_v2" "instance" {
   flavor_name = var.config.instance.flavor
   availability_zone = contains(keys(var.config.instance), "availability_zone") ? var.config.instance.availability_zone : null
   key_pair    = var.keypair_name
+  user_data = local.enable_user_data ? local.user_data : null
 
   lifecycle {
     ignore_changes = [key_pair, power_state, scheduler_hints]

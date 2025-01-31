@@ -1,6 +1,14 @@
-#output "config" {
-#  value = local.fip_network
-#}
+output "config" {
+  value = local.config
+}
+output "resources" {
+  value = local.resources
+}
+
+output "default" {
+  value = local.default
+}
+
 #
 #output "cidr_count" {
 #  value = length(local.cidr_map)
@@ -23,13 +31,13 @@
 #output "networks" {
 #  value = [for value in module.network : value]
 #}
-output "instances" {
-  value = [for value in module.instance : value]
-}
-#output "secgroup" {
-#  value = [for value in module.security_groups : value]
+#output "instances" {
+#  value = [for value in module.instance : value]
 #}
-
-output "sec_value" {
-  value = local.secgroup_v2_map_id
-}
+##output "secgroup" {
+##  value = [for value in module.security_groups : value]
+##}
+#
+#output "sec_value" {
+#  value = local.secgroup_v2_map_id
+#}

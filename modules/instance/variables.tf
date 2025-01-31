@@ -2,6 +2,8 @@ variable "config" {
   type = map(any)
 }
 
+variable "value" {}
+
 variable "name" {
   type = string
 }
