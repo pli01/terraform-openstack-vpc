@@ -14,6 +14,9 @@ variable "parameters" {
 
 locals {
 
+  enable_metadata = contains(keys(var.value.instance), "enable_metadata") ? var.value.instance.enable_metadata : false
+  metadata = local.enable_metadata ? var.value.instance.metadata : null
+
   enable_user_data = contains(keys(var.value.instance), "enable_user_data") ? var.value.instance.enable_user_data : false
 
   cloudinit_part = contains(keys(var.value.instance), "cloudinit_multipart") ? flatten([
