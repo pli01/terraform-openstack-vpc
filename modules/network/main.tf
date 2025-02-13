@@ -49,7 +49,7 @@ locals {
           route_value : route_value
           network_name : "${var.name}${local.separator}${net}",
           subnet_name : "${var.name}${local.separator}${net}${local.separator}${subnet}",
-          next_hop : cidrhost(subnet_value.cidr, local.next_hop_ip),
+          next_hop : (contains(keys(subnet_value), "gateway") ? subnet_value.gateway : cidrhost(subnet_value.cidr, local.next_hop_ip))
         }
       }
     ]
@@ -85,11 +85,11 @@ resource "openstack_networking_subnet_v2" "subnet" {
   dns_nameservers = each.value.subnet_value.dns_nameservers
   # gateway
   gateway_ip = (contains(keys(each.value.subnet_value), "gateway") ? each.value.subnet_value.gateway : null)
-  no_gateway = (contains(keys(each.value.subnet_value), "gateway") ? null : true)
+  no_gateway = (contains(keys(each.value.subnet_value), "no_gateway") ? true : null )
 }
 
 resource "openstack_networking_port_v2" "port" {
-  for_each = { for subnet, value in local.subnet_map : subnet => value if contains(keys(value.subnet_value), "gateway") }
+  for_each = { for subnet, value in local.subnet_map : subnet => value if contains(keys(value.subnet_value), "router") }
 
   name = format("%s%s%s", each.value.subnet_name, local.separator, "router")
 
@@ -97,12 +97,12 @@ resource "openstack_networking_port_v2" "port" {
   admin_state_up = true
   fixed_ip {
     subnet_id  = openstack_networking_subnet_v2.subnet[each.value.subnet_name].id
-    ip_address = each.value.subnet_value.gateway
+    ip_address = (contains(keys(each.value.subnet_value), "gateway") ? each.value.subnet_value.gateway : cidrhost(each.value.subnet_value.cidr, local.next_hop_ip))
   }
 }
 
 resource "openstack_networking_router_interface_v2" "router_interface" {
-  for_each  = { for subnet, value in local.subnet_map : subnet => value if contains(keys(value.subnet_value), "gateway") && contains(keys(value.subnet_value), "router") }
+  for_each  = { for subnet, value in local.subnet_map : subnet => value if contains(keys(value.subnet_value), "router") }
   router_id = var.router_map[each.value.subnet_value.router].id
   port_id   = openstack_networking_port_v2.port[each.value.subnet_name].id
 }
