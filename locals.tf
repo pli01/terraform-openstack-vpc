@@ -1,22 +1,25 @@
 locals {
   # config file
-  config = yamldecode(file("${path.module}/${var.config}"))
+  #config = yamldecode(file("${path.root}/${var.config}"))
+  config    = module.yaml-config.config
+  resources = module.yaml-config.config.resources
+  default   = module.yaml-config.config.default
 
   separator = "_"
 
   # fip_network
-  fip_network = { for key, value in local.config.cloud.fip_network : key => value }
+  fip_network = { for key, value in local.config.default.fip_network : key => value }
 
   # network
   #  network => zone => network => subnet
-  network_zone = { for key, value in local.config.network : key => value }
+  network_zone = { for key, value in local.config.resources.network : key => value }
 
   # network
   #  network => zone => network => subnet
 
   # { subnet_name => { subnet value }}
   cidr_map = { for entry in flatten([
-    for zone, zone_value in local.config.network : [
+    for zone, zone_value in local.config.resources.network : [
       for net, subnets in zone_value.networks : [
         for subnet, subnet_value in subnets : {
           key = subnet_value.cidr,
@@ -32,11 +35,11 @@ locals {
 
   # instance
   #  instance => instance_name => { flavor,interfaces, volumes...}
-  instance_map = { for instance, instance_value in local.config.instances : instance => { instance : instance_value } }
+  instance_map = { for instance, instance_value in local.config.resources.instances : instance => { instance : instance_value } }
 
   #  ip_address => { network_name,subnet_name}
   ip_address_map = { for entry in flatten([
-    for instance, instance_value in local.config.instances : [
+    for instance, instance_value in local.config.resources.instances : [
       for key, value in instance_value.interfaces : [
         for cidr, cidr_value in local.cidr_map : {
           key = value.ip_address,

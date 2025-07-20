@@ -66,12 +66,12 @@ resource "openstack_networking_floatingip_associate_v2" "fip" {
   port_id     = openstack_networking_port_v2.port[each.key].id
 }
 
-resource "openstack_blockstorage_volume_v2" "volume" {
+resource "openstack_blockstorage_volume_v3" "volume" {
   for_each    = local.volume_list
   name        = each.key
   size        = each.value.size
   image_id    = contains(keys(each.value), "image") ? data.openstack_images_image_v2.image[each.value.image].id : null
-  volume_type = var.volume_type
+  volume_type = each.value.volume_type
 
   lifecycle {
     ignore_changes  = [image_id, snapshot_id]
@@ -82,7 +82,10 @@ resource "openstack_blockstorage_volume_v2" "volume" {
 resource "openstack_compute_instance_v2" "instance" {
   name        = local.openstack_instance_name
   flavor_name = var.config.instance.flavor
+  availability_zone = contains(keys(var.config.instance), "availability_zone") ? var.config.instance.availability_zone : null
   key_pair    = var.keypair_name
+  user_data = local.enable_user_data ? local.user_data : null
+  metadata = local.enable_metadata ? local.metadata : null
 
   lifecycle {
     ignore_changes = [key_pair, power_state, scheduler_hints]
@@ -100,7 +103,7 @@ resource "openstack_compute_instance_v2" "instance" {
     for_each = local.volume_list
     iterator = device
     content {
-      uuid                  = openstack_blockstorage_volume_v2.volume[device.key].id
+      uuid                  = openstack_blockstorage_volume_v3.volume[device.key].id
       source_type           = "volume"
       boot_index            = index(keys(local.volume_list), device.key)
       destination_type      = "volume"

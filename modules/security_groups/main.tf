@@ -104,7 +104,7 @@ resource "openstack_networking_secgroup_rule_v2" "secgroup_rule" {
   port_range_max = each.value.port_range_max
 
   remote_ip_prefix = each.value.is_remote_ip_prefix ? try(each.value.source, local.default_source) : null
-  remote_group_id  = each.value.is_remote_ip_prefix ? null : openstack_networking_secgroup_v2.secgroup[each.value.remote_group_id].id
+  #remote_group_id  = each.value.is_remote_ip_prefix ? null : openstack_networking_secgroup_v2.secgroup[each.value.remote_group_id].id
 
   security_group_id = openstack_networking_secgroup_v2.secgroup[each.value.security_group_name].id
 }

@@ -1,87 +1,83 @@
-configuration:
-  openstack_compute_interface_attach_v2: true
-cloud:
-  cloud: ovh
-  tenant_id: plop
+default:
   keypair:
     default_keypair: "ssh-rsa ......"
   fip_network:
     FIP_PUB: Ext-Net
     FIP_ADM: Ext-Net
-images: {}
-security_groups: {}
-#network: {}
-network:
-  admin:
-    networks:
-      fip:
-        fip_nat:
-          cidr: 10.1.1.0/29
-          dhcp: false
-          gateway: 10.1.1.1
-          router: FIP_ADM
-        fip_bastion:
-          cidr: 10.1.1.8/29
-          dhcp: false
-          gateway: 10.1.1.9
-          router: FIP_ADM
+resources:
+  security_groups: {}
+  #network: {}
+  network:
+    admin:
+      networks:
+        fip:
+          fip_nat:
+            cidr: 10.1.1.0/29
+            dhcp: false
+            gateway: 10.1.1.1
+            router: FIP_ADM
+          fip_bastion:
+            cidr: 10.1.1.8/29
+            dhcp: false
+            gateway: 10.1.1.9
+            router: FIP_ADM
 
-      tools:
         tools:
-          cidr: 10.1.2.0/24
-          dhcp:
-            dns:
-              - 10.1.2.14
-            routes:
-              - 10.1.1.0/16
-              - 192.168.0.0/10
+          tools:
+            cidr: 10.1.2.0/24
+            dhcp:
+              dns:
+                - 10.1.2.14
+              routes:
+                - 10.1.1.0/16
+                - 192.168.0.0/10
 
-  pub:
-    networks:
-      fip:
-        fip_nat:
-          cidr: 10.2.0.0/29
-          dhcp: false
-          gateway: 10.2.0.1
-          router: FIP_PUB
+    pub:
+      networks:
+        fip:
+          fip_nat:
+            cidr: 10.2.0.0/29
+            dhcp: false
+            gateway: 10.2.0.1
+            router: FIP_PUB
 
-#security_groups: {}
-security_groups:
-  admin:
-    default:
-      - ports: 22
-        description: SSH
-        sources:
-          - bastion
-      - protocol: icmp
-        sources:
-          - 10.1.1.0/24
-          - 192.168.1.1/32
-          - bastion
-      - ports: 5666:5667
-        description: Nagios
-        sources: nagios
-    bastion:
-      - ports: 22
-        description: SSH
-        sources: 10.2.2.0/24
+  #security_groups: {}
+  security_groups:
+    admin:
+      default:
+        - ports: 22
+          description: SSH
+          sources:
+            - bastion
+        - protocol: icmp
+          sources:
+            - 10.1.1.0/24
+            - 192.168.1.1/32
+            - bastion
+        - ports: 5666:5667
+          description: Nagios
+          sources: nagios
+      bastion:
+        - ports: 22
+          description: SSH
+          sources: 10.2.2.0/24
 
-#instances: {}
-instances:
-  bastion-01:
-    openstack_instance_name: bastion-01
-    flavor: s1-2
-    interfaces:
-      - ip_address: 10.1.1.3
-        floating_ip: X.X.X.X
-        security_groups:
-          - bastion
-        #port_security_enabled: false
-        #mac_address: ab:cd:ef:1a:bc:00
-        #allowed_address_pairs_ip: 10.1.1.100
-    volumes:
-      - name: boot
-        size: 10
-        image: Debian 10
-      - name: data
-        size: 20
+  #instances: {}
+  instances:
+    bastion-01:
+      openstack_instance_name: bastion-01
+      flavor: s1-2
+      interfaces:
+        - ip_address: 10.1.1.3
+          floating_ip: X.X.X.X
+          security_groups:
+            - bastion
+          #port_security_enabled: false
+          #mac_address: ab:cd:ef:1a:bc:00
+          #allowed_address_pairs_ip: 10.1.1.100
+      volumes:
+        - name: boot
+          size: 10
+          image: Debian 10
+        - name: data
+          size: 20
