@@ -20,7 +20,7 @@ locals {
       #
       # resolve security group id (TODO: add default if defined)
       #
-      sec_group : flatten([ for sec_name in flatten([for s in lookup(v,"security_groups",{}) : format("%s%s%s",var.ip_address_map[v.ip_address].zone_name,local.separator,s) ]): 
+      sec_group : flatten([for sec_name in flatten([for s in lookup(v, "security_groups", {}) : format("%s%s%s", var.ip_address_map[v.ip_address].zone_name, local.separator, s)]) :
         var.secgroup_v2_map_id[sec_name] if contains(keys(var.secgroup_v2_map_id), sec_name)
       ])
     })
@@ -80,12 +80,12 @@ resource "openstack_blockstorage_volume_v3" "volume" {
 }
 
 resource "openstack_compute_instance_v2" "instance" {
-  name        = local.openstack_instance_name
-  flavor_name = var.config.instance.flavor
+  name              = local.openstack_instance_name
+  flavor_name       = var.config.instance.flavor
   availability_zone = contains(keys(var.config.instance), "availability_zone") ? var.config.instance.availability_zone : null
-  key_pair    = var.keypair_name
-  user_data = local.enable_user_data ? local.user_data : null
-  metadata = local.enable_metadata ? local.metadata : null
+  key_pair          = contains(keys(var.config.instance), "keypair") ? var.config.instance.keypair : var.keypair_name
+  user_data         = local.enable_user_data ? local.user_data : null
+  metadata          = local.enable_metadata ? local.metadata : null
 
   lifecycle {
     ignore_changes = [key_pair, power_state, scheduler_hints]
